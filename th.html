@@ -347,7 +347,14 @@ function calRisk() {
     //return 0;
     errors.push("ไม่มีข้อมูลเพศ");
   }
-  
+  if (document.getElementById("age").value == "") {
+    console.log("error: No age data")
+    //document.getElementById("out").innerHTML = "Error: Incorrect age data";
+    //document.getElementById('out').className = "terminale";
+    //return 0;
+    errors.push("ข้อมูลอายุไม่ถูกต้อง");
+  }
+
   let smoke_ness = "non_smoke";
   if (document.getElementById("smoke").checked) {
     console.log("smoke");
@@ -358,7 +365,7 @@ function calRisk() {
     smoke_ness = "non_smoke";
   } 
   else {
-    errors.push("ไม่มีข้อมุลสูบบุหรี่");
+    errors.push("ไม่มีข้อมูลสูบบุหรี่");
   }
   
   let dm_ness = "dm";
@@ -374,13 +381,7 @@ function calRisk() {
     errors.push("ไม่มีข้อมูลเป็นเบาหวาน");
   }
   
-  if (document.getElementById("age").value == "") {
-    console.log("error: No age data")
-    //document.getElementById("out").innerHTML = "Error: Incorrect age data";
-    //document.getElementById('out').className = "terminale";
-    //return 0;
-    errors.push("ข้อมูลอายุไม่ถูกต้อง");
-  }
+
   if (document.getElementById("sbp").value == "") {
     console.log("error: No SBP data")
     //document.getElementById("out").innerHTML = "Error: Incorrect SBP data";
