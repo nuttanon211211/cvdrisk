@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heart App</title>
+<style>
+p.terminal {
+  background-color: forestgreen;
+  color: white;
+  border: 6px solid forestgreen;
+  border-radius: 5px;
+  }
+p.terminal1 {
+  background-color: chartreuse;
+  color: black;
+  border: 6px solid chartreuse;
+  border-radius: 5px;
+  }
+p.terminal2 {
+  background-color: yellow;
+  color: black;
+  border: 6px solid yellow;
+  border-radius: 5px;
+  }
+p.terminal3 {
+  background-color: darkorange;
+  color: black;
+  border: 6px solid darkorange;
+  border-radius: 5px;
+  }
+p.terminal4 {
+  background-color: red;
+  color: white;
+  border: 6px solid red;
+  border-radius: 5px;
+  }
+p.terminal5 {
+  background-color: darkred;
+  color: white;
+  border: 6px solid darkred;
+  border-radius: 5px;
+  }
+p.terminale {
+  background-color: lightgray;
+  color: black;
+  border: 6px solid lightgray;
+  border-radius: 5px;
+  }
+button[type=button] {
+  background-color: mintcream;
+  color: black;
+  border: 2px solid forestgreen;
+  border-radius: 8px;
+  font-weight: bold;
+  padding: 10px 20px;
+  text-align: center;
+  display: inline-block;
+  text-decoration: none;
+}
+button[type=button]:hover, button[type=button]:active {
+  background-color: forestgreen;
+  color:white;
+}
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  position: absolute;
+  color: white;
+  background-color: #555;
+  z-index: 1;
+  border-radius: 6px;
+  padding: 5px 0;
+  width: 240px;
+  top: 0%;
+  left: 0%;
+  margin-left: 0px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip .tooltiptext:after {
+  content: "";
+  position: absolute;
+  top: 10%;
+  left: 0%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+</style>
+</head>
+<body>
+<p class="terminal" id="out">Heart app ; This is output area</p>
+
+<input type="radio" id="female" name="sex">
+<label for="female">Female</label><br>
+<input type="radio" id="male" name="sex">
+<label for="male">Male</label><br>
+<label for="age">Age:</label>
+<input type="number" id="age" min="0" max="120" onclick="this.select()">
+<br><br>
+<label for="smoke">Smoke</label>
+<input type="checkbox" id="smoke">&ensp;<div class="tooltip">&#10067;
+<span class="tooltiptext">Smoking recently (less than a year)</span>
+</div>
+<br>
+<label for="diabetes">Diabetes</label>
+<input type="checkbox" id="diabetes">
+<br><br>
+<label for="sbp">SBP:</label>
+<input type="number" id="sbp" min="0" max="999" onclick="this.select()">&ensp;<div class="tooltip">&#10067;
+<span class="tooltiptext">Systolic Blood Pressure (mmHg) using average of two measurements at different time</span>
+</div>
+<br>
+<label for="choles">Cholesterol:</label>
+<input type="number" id="choles" min="0" max="999" onclick="this.select()">&ensp;<div class="tooltip">&#10067;
+<span class="tooltiptext">(mg/dl) Most recent result</span>
+</div>
+<br>
+<button type="button" onclick="calRisk()"> Submit </button>
+
+<script>
+var DATA = {'dm': {'male': {'smoke': {40: {120: {160: 1, 200: 1, 240: 1, 280: 1, 320: 3},
+     140: {160: 1, 200: 1, 240: 1, 280: 2, 320: 5},
+     160: {160: 2, 200: 2, 240: 3, 280: 5, 320: 5},
+     180: {160: 5, 200: 5, 240: 5, 280: 5, 320: 5}},
+    50: {120: {160: 1, 200: 1, 240: 1, 280: 2, 320: 3},
+     140: {160: 1, 200: 1, 240: 2, 280: 3, 320: 5},
+     160: {160: 2, 200: 3, 240: 4, 280: 5, 320: 5},
+     180: {160: 5, 200: 5, 240: 5, 280: 5, 320: 5}},
+    60: {120: {160: 1, 200: 1, 240: 2, 280: 2, 320: 3},
+     140: {160: 2, 200: 2, 240: 3, 280: 4, 320: 5},
+     160: {160: 3, 200: 4, 240: 5, 280: 5, 320: 5},
+     180: {160: 5, 200: 5, 240: 5, 280: 5, 320: 5}},
+    70: {120: {160: 2, 200: 2, 240: 3, 280: 3, 320: 4},
+     140: {160: 3, 200: 3, 240: 4, 280: 5, 320: 5},
+     160: {160: 4, 200: 5, 240: 5, 280: 5, 320: 5},
+     180: {160: 5, 200: 5, 240: 5, 280: 5, 320: 5}}},
+   'non_smoke': {40: {120: {160: 1, 200: 1, 240: 1, 280: 1, 320: 1},
+     140: {160: 1, 200: 1, 240: 1, 280: 1, 320: 3},
+     160: {160: 1, 200: 1, 240: 2, 280: 3, 320: 5},
+     180: {160: 3, 200: 4, 240: 5, 280: 5, 320: 5}},
+    50: {120: {160: 1, 200: 1, 240: 1, 280: 1, 320: 2},
+     140: {160: 1, 200: 1, 240: 1, 280: 2, 320: 3},
+     160: {160: 1, 200: 2, 240: 2, 280: 3, 320: 5},
+     180: {160: 3, 200: 4, 240: 5, 280: 5, 320: 5}},
+    60: {120: {160: 1, 200: 1, 240: 1, 280: 2, 320: 2},
+     140: {160: 1, 200: 2, 240: 2, 280: 2, 320: 3},
+     160: {160: 2, 200: 3, 240: 3, 280: 4, 320: 5},
+     180: {160: 4, 200: 5, 240: 5, 280: 5, 320: 5}},
+    70: {120: {160: 1, 200: 2, 240: 2, 280: 2, 320: 3},
+     140: {160: 2, 200: 2, 240: 3, 280: 3, 320: 4},
+     160: {160: 3, 200: 3, 240: 4, 280: 4, 320: 5},
+     180: {160: 5, 200: 5, 240: 5, 280: 5, 320: 5}}}},
+  'female': {'smoke': {40: {120: {160: 1, 200: 1, 240: 1, 280: 2, 320: 3},
+     140: {160: 1, 200: 2, 240: 2, 280: 4, 320: 5},
+     160: {160: 2, 200: 4, 240: 5, 280: 5, 320: 5},
+     180: {160: 5, 200: 5, 240: 5, 280: 5, 320: 5}},
+    50: {120: {160: 1, 200: 1, 240: 2, 280: 2, 320: 3},
+     140: {160: 1, 200: 2, 240: 3, 280: 4, 320: 5},
+     160: {160: 2, 200: 4, 240: 5, 280: 5, 320: 5},
+     180: {160: 5, 200: 5, 240: 5, 280: 5, 320: 5}},
+    60: {120: {160: 1, 200: 2, 240: 3, 280: 4, 320: 4},
+     140: {160: 2, 200: 3, 240: 4, 280: 5, 320: 5},
+     160: {160: 4, 200: 5, 240: 5, 280: 5, 320: 5},
+     180: {160: 5, 200: 5, 240: 5, 280: 5, 320: 5}},
+    70: {120: {160: 2, 200: 2, 240: 3, 280: 4, 320: 4},
+     140: {160: 3, 200: 4, 240: 4, 280: 5, 320: 5},
+     160: {160: 4, 200: 5, 240: 5, 280: 5, 320: 5},
+     180: {160: 5, 200: 5, 240: 5, 280: 5, 320: 5}}},
+   'non_smoke': {40: {120: {160: 1, 200: 1, 240: 1, 280: 1, 320: 3},
+     140: {160: 1, 200: 1, 240: 2, 280: 3, 320: 3},
+     160: {160: 1, 200: 2, 240: 4, 280: 5, 320: 5},
+     180: {160: 4, 200: 5, 240: 5, 280: 5, 320: 5}},
+    50: {120: {160: 1, 200: 1, 240: 1, 280: 2, 320: 3},
+     140: {160: 1, 200: 1, 240: 2, 280: 3, 320: 4},
+     160: {160: 2, 200: 2, 240: 4, 280: 5, 320: 5},
+     180: {160: 4, 200: 5, 240: 5, 280: 5, 320: 5}},
+    60: {120: {160: 1, 200: 1, 240: 1, 280: 2, 320: 3},
+     140: {160: 1, 200: 2, 240: 2, 280: 3, 320: 4},
+     160: {160: 2, 200: 3, 240: 4, 280: 5, 320: 5},
+     180: {160: 4, 200: 5, 240: 5, 280: 5, 320: 5}},
+    70: {120: {160: 1, 200: 2, 240: 2, 280: 3, 320: 3},
+     140: {160: 2, 200: 3, 240: 3, 280: 4, 320: 5},
+     160: {160: 3, 200: 4, 240: 4, 280: 5, 320: 5},
+     180: {160: 5, 200: 5, 240: 5, 280: 5, 320: 5}}}}},
+ 'non_dm': {'male': {'smoke': {40: {120: {160: 1,
+      200: 1,
+      240: 1,
+      280: 1,
+      320: 2},
+     140: {160: 1, 200: 1, 240: 1, 280: 1, 320: 3},
+     160: {160: 1, 200: 1, 240: 2, 280: 3, 320: 5},
+     180: {160: 3, 200: 4, 240: 5, 280: 5, 320: 5}},
+    50: {120: {160: 1, 200: 1, 240: 1, 280: 1, 320: 2},
+     140: {160: 1, 200: 1, 240: 1, 280: 2, 320: 3},
+     160: {160: 1, 200: 2, 240: 2, 280: 4, 320: 5},
+     180: {160: 3, 200: 4, 240: 5, 280: 5, 320: 5}},
+    60: {120: {160: 1, 200: 1, 240: 1, 280: 1, 320: 2},
+     140: {160: 1, 200: 1, 240: 2, 280: 2, 320: 3},
+     160: {160: 2, 200: 2, 240: 3, 280: 4, 320: 5},
+     180: {160: 4, 200: 5, 240: 5, 280: 5, 320: 5}},
+    70: {120: {160: 1, 200: 1, 240: 2, 280: 2, 320: 2},
+     140: {160: 2, 200: 2, 240: 2, 280: 3, 320: 3},
+     160: {160: 2, 200: 3, 240: 3, 280: 4, 320: 5},
+     180: {160: 4, 200: 5, 240: 5, 280: 5, 320: 5}}},
+   'non_smoke': {40: {120: {160: 1, 200: 1, 240: 1, 280: 1, 320: 1},
+     140: {160: 1, 200: 1, 240: 1, 280: 1, 320: 2},
+     160: {160: 1, 200: 1, 240: 1, 280: 2, 320: 3},
+     180: {160: 2, 200: 2, 240: 3, 280: 5, 320: 5}},
+    50: {120: {160: 1, 200: 1, 240: 1, 280: 1, 320: 1},
+     140: {160: 1, 200: 1, 240: 1, 280: 1, 320: 2},
+     160: {160: 1, 200: 1, 240: 1, 280: 2, 320: 3},
+     180: {160: 2, 200: 3, 240: 3, 280: 5, 320: 5}},
+    60: {120: {160: 1, 200: 1, 240: 1, 280: 1, 320: 1},
+     140: {160: 1, 200: 1, 240: 1, 280: 2, 320: 2},
+     160: {160: 1, 200: 2, 240: 2, 280: 2, 320: 3},
+     180: {160: 3, 200: 3, 240: 4, 280: 5, 320: 5}},
+    70: {120: {160: 1, 200: 1, 240: 1, 280: 1, 320: 2},
+     140: {160: 1, 200: 1, 240: 2, 280: 2, 320: 2},
+     160: {160: 2, 200: 2, 240: 2, 280: 3, 320: 3},
+     180: {160: 3, 200: 3, 240: 4, 280: 5, 320: 5}}}},
+  'female': {'smoke': {40: {120: {160: 1, 200: 1, 240: 1, 280: 1, 320: 2},
+     140: {160: 1, 200: 1, 240: 1, 280: 2, 320: 3},
+     160: {160: 1, 200: 2, 240: 3, 280: 4, 320: 5},
+     180: {160: 4, 200: 5, 240: 5, 280: 5, 320: 5}},
+    50: {120: {160: 1, 200: 1, 240: 1, 280: 1, 320: 2},
+     140: {160: 1, 200: 1, 240: 2, 280: 2, 320: 3},
+     160: {160: 2, 200: 2, 240: 3, 280: 4, 320: 5},
+     180: {160: 4, 200: 5, 240: 5, 280: 5, 320: 5}},
+    60: {120: {160: 1, 200: 1, 240: 1, 280: 2, 320: 3},
+     140: {160: 1, 200: 2, 240: 2, 280: 3, 320: 4},
+     160: {160: 2, 200: 3, 240: 4, 280: 5, 320: 5},
+     180: {160: 5, 200: 5, 240: 5, 280: 5, 320: 5}},
+    70: {120: {160: 1, 200: 1, 240: 2, 280: 2, 320: 3},
+     140: {160: 2, 200: 2, 240: 2, 280: 3, 320: 4},
+     160: {160: 2, 200: 3, 240: 4, 280: 5, 320: 5},
+     180: {160: 5, 200: 5, 240: 5, 280: 5, 320: 5}}},
+   'non_smoke': {40: {120: {160: 1, 200: 1, 240: 1, 280: 1, 320: 2},
+     140: {160: 1, 200: 1, 240: 1, 280: 2, 320: 3},
+     160: {160: 1, 200: 1, 240: 2, 280: 3, 320: 5},
+     180: {160: 2, 200: 3, 240: 5, 280: 5, 320: 5}},
+    50: {120: {160: 1, 200: 1, 240: 1, 280: 1, 320: 2},
+     140: {160: 1, 200: 1, 240: 1, 280: 2, 320: 3},
+     160: {160: 1, 200: 1, 240: 2, 280: 3, 320: 5},
+     180: {160: 3, 200: 4, 240: 5, 280: 5, 320: 5}},
+    60: {120: {160: 1, 200: 1, 240: 1, 280: 1, 320: 2},
+     140: {160: 1, 200: 1, 240: 1, 280: 2, 320: 3},
+     160: {160: 1, 200: 2, 240: 2, 280: 3, 320: 5},
+     180: {160: 3, 200: 4, 240: 5, 280: 5, 320: 5}},
+    70: {120: {160: 1, 200: 1, 240: 1, 280: 1, 320: 2},
+     140: {160: 1, 200: 1, 240: 2, 280: 2, 320: 3}, 
+     160: {160: 2, 200: 2, 240: 2, 280: 3, 320: 5},
+     180: {160: 3, 200: 4, 240: 5, 280: 5, 320: 5}}}}}};
+     
+var riskDesc = {1:"less than 10", 2:"10 to 20", 3:"20 to 30" , 4:"30 to 40", 5:"40 or more"};
+function roundAge(age) {
+  let x = Number(age);
+  if (x < 50) {
+    return 40;
+  }
+  else if (x < 60) {
+    return 50;
+  }
+  else if (x < 70) {
+    return 60;
+  }
+  else {
+    return 70;
+  }
+}
+
+function roundSBP(sbp) {
+  let x = Number(sbp);
+  if (x < 140) {
+    return 120;
+  }
+  else if (x < 160) {
+    return 140;
+  }
+  else if (x < 180) {
+    return 160;
+  }
+  else {
+    return 180;
+  }
+} 
+
+function roundCholes(cholesterol) {
+  let x = Number(cholesterol);
+  if (x < 200) {
+    return 160;
+  }
+  else if (x < 240){
+    return 200;
+  }
+  else if (x < 280){
+    return 240;
+  }
+  else if (x < 320){
+    return 280;
+  }
+  else {
+    return 320;
+  }
+}
+   
+function calRisk() {  
+
+  let errors = [];
+  let sex = "female";
+  if (document.getElementById("male").checked) {
+    console.log("ISMALE");
+    sex = "male";
+  } 
+  else if (document.getElementById("female").checked) {
+    console.log("ISFEMALE");
+    sex = "female";
+  } 
+  else {
+    console.log("error: No sex");
+    //document.getElementById("out").innerHTML = "Error: No sex data";
+    //document.getElementById('out').className = "terminale";
+    //return 0;
+    errors.push("No sex data");
+  }
+  
+  let smoke_ness = "non_smoke";
+  if (document.getElementById("smoke").checked) {
+    console.log("smoke");
+    smoke_ness = "smoke";
+  }
+  else {
+    console.log("non_smoke");
+    smoke_ness = "non_smoke";
+  }
+  
+  let dm_ness = "dm";
+  if (document.getElementById("diabetes").checked) {
+    console.log("diabetes");
+    dm_ness = "dm";
+  }
+  else {
+    console.log("non_diabetes");
+    dm_ness = "non_dm";
+  }
+  
+  if (document.getElementById("age").value == "") {
+    console.log("error: No age data")
+    //document.getElementById("out").innerHTML = "Error: Incorrect age data";
+    //document.getElementById('out').className = "terminale";
+    //return 0;
+    errors.push("Incorrect age data");
+  }
+  if (document.getElementById("sbp").value == "") {
+    console.log("error: No SBP data")
+    //document.getElementById("out").innerHTML = "Error: Incorrect SBP data";
+    //document.getElementById('out').className = "terminale";
+    //return 0;
+    errors.push("Incorrect SBP data");
+  }
+  if (document.getElementById("choles").value == "") {
+    console.log("error: No choles data")
+    //document.getElementById("out").innerHTML = "Error: Incorrect cholesterol data";
+    //document.getElementById('out').className = "terminale";
+    //return 0;
+    errors.push("Incorrect cholesterol data");
+  }
+  let age = roundAge(document.getElementById("age").value); 
+  let sbp = roundSBP(document.getElementById("sbp").value); 
+  let choles = roundCholes(document.getElementById("choles").value);
+  console.log(dm_ness, sex, smoke_ness, age, sbp, choles);
+  let res = DATA[dm_ness][sex][smoke_ness][age][sbp][choles];
+  console.log(res);
+  console.log(errors);
+  if (errors.length == 0 ) {  
+    document.getElementById("out").innerHTML = "You have <br>" + riskDesc[res]+" percent chance to have Myocardial Infarction & stroke:fatal, non-fatal in the next ten year";
+    document.getElementById('out').className = "terminal" + res;
+  //return 1;
+  }
+  else {
+    document.getElementById("out").innerHTML = "Error due to<br>"+errors.join('<br>');
+    document.getElementById('out').className = "terminale";
+  }
+  
+  
+
+}   
+//console.log(roundAge('aaa'));
+//console.log(roundSBP('bbb'));
+//console.log(roundCholes('ccc'));
+//console.log(DATA);
+//console.log(a[0]);
+//console.log(a.length);
+
+//console.log(DATA);
+//console.log(DATA['dm'])
+//console.log(DATA['dm']['male'])
+//console.log(DATA['dm']['male']['smoke'])
+//console.log(DATA['dm']['male']['smoke'][40])
+//console.log(DATA['dm']['male']['smoke'][40][120])
+//console.log(DATA['dm']['male']['smoke'][40][120][160])
+//console.log(DATA['dm']['male']['smoke'][40][120][161]) 
+
+</script>
+</body>
+</html>
